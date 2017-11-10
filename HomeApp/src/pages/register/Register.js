@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, navigator, KeyboardAvoidingView, TextInput, Tou
 class Register extends Component {
 
     static navigationOptions = {
-        title: 'Registro',
+        title: 'Crear nueva cuenta',
         headerStyle: { backgroundColor: '#337FB0' },
         headerTitleStyle: { color: '#FFF', opacity: 0.7, fontSize: 20 },
 
@@ -27,11 +27,19 @@ class Register extends Component {
                         underlineColorAndroid='transparent'
                         returnKeyType='next'
                         ref={(input) => this.passwordInput = input}
+                        onSubmitEditing={() => this.passwordVeryInput.focus()}
+                        style={styles.input} />
+                    <TextInput
+                        placeholder="Contraseña"
+                        secureTextEntry
+                        underlineColorAndroid='transparent'
+                        returnKeyType='next'
+                        ref={(input) => this.passwordVeryInput = input}
                         style={styles.input} />
 
                     <TouchableOpacity
                         style={styles.buttonContainer}>
-                        <Text style={styles.button}>Registrar</Text>
+                        <Text style={styles.button}>Crear cuenta</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>

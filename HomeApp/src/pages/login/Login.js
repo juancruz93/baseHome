@@ -1,14 +1,62 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, StatusBar, Alert, Navigator } from 'react-native';
-import Home from '../home/Home';
+import firebaseRef from '../../services/firebase';
 
 export default class Login extends Component {
+ 
   static navigationOptions = {
     header: false,
   }
+  
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      email: '',
+      password: ''
+    }
+
+    this._login = this._login.bind(this)
+    this._loginUser()
+
+  }
+
+  _login() {   
+
+    firebaseRef.auth().signInWithEmailAndPassword(this.state.email, this.state.password).catch(function (error) {
+      // Handle Errors here.
+      console.log(error.code);
+      console.log(error.message);
+      if (error.code == 'auth/invalid-email') {
+        Alert.alert('Mensaje:', 'Formato de correo electrónico invalido', [{ text: 'Confirmar' },]);
+      } else if (error.code == 'auth/user-not-found') {
+        Alert.alert('Mensaje:', 'El correo electrónico no se encuentra registrado en el sistema', [{ text: 'Confirmar' },]);
+      } else if (error.code == 'auth/wrong-password') {
+        Alert.alert('Mensaje:', 'La contraseña no es válida o el usuario no tiene una contraseña', [{ text: 'Confirmar' },]);
+      }
+
+    });
+
+    this._loginUser();
+
+  }
+
+  _loginUser() {  
+    const { navigate } = this.props.navigation;  
+    firebaseRef.auth().onAuthStateChanged(function (user) {
+      if (user) {        
+        navigate('Home')
+        console.log('usuario logueado.')
+      } else {
+        console.log('usuario no logueado.')
+      }
+    });
+  }
+
+
 
   render() {
-    const { navigate } = this.props.navigation;
+    const { navigate } = this.props.navigation;  
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <StatusBar barStyle='light-content'></StatusBar>
@@ -16,17 +64,21 @@ export default class Login extends Component {
           <Image
             style={styles.logo}
             source={require('../../images/logo.png')} />
-          <Text style={styles.title}>Aplicación de Prueba</Text>
+          <Text style={styles.title}>Aplicación</Text>
         </View>
         <View style={styles.formContainer}>
           <TextInput
-            placeholder="Usuario"
+            placeholder="Correo electrónico"
+            onChangeText={(text) => this.setState({ email: text })}
+            value={this.state.email}
             underlineColorAndroid='transparent'
             returnKeyType='next'
             onSubmitEditing={() => this.passwordInput.focus()}
             style={styles.input} />
           <TextInput
             placeholder="Contraseña"
+            onChangeText={(text) => this.setState({ password: text })}
+            value={this.state.password}
             secureTextEntry
             underlineColorAndroid='transparent'
             returnKeyType='go'
@@ -34,13 +86,13 @@ export default class Login extends Component {
             style={styles.input} />
 
           <TouchableOpacity
-            style={styles.buttonContainer}>
+            style={styles.buttonContainer} onPress={this._login}>
             <Text style={styles.button}>Iniciar Sesión</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigate('Register')}
             style={styles.buttonContainer}>
-            <Text style={styles.button}>Registrarse</Text>
+            <Text style={styles.button}>No tienes cuenta?</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
