@@ -27,7 +27,6 @@ class Home extends Component {
 
     _SignOutLogin(navigate) {
         var nav = navigate.navigate;
-        console.log(nav);
         firebaseRef.auth().signOut().then(function () {
             // Sign-out successful.
             console.log('deslogueo');

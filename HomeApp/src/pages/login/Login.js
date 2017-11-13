@@ -3,11 +3,11 @@ import { StyleSheet, View, Text, Image, TextInput, TouchableOpacity, KeyboardAvo
 import firebaseRef from '../../services/firebase';
 
 export default class Login extends Component {
- 
+
   static navigationOptions = {
     header: false,
   }
-  
+
   constructor(props) {
     super(props)
 
@@ -17,12 +17,15 @@ export default class Login extends Component {
     }
 
     this._login = this._login.bind(this)
+    
     this._loginUser()
 
   }
 
-  _login() {   
-
+  _login() {
+    // quita espacion email   
+    var email = this.state.email.replace(" ", "");
+    this.state.email = email;
     firebaseRef.auth().signInWithEmailAndPassword(this.state.email, this.state.password).catch(function (error) {
       // Handle Errors here.
       console.log(error.code);
@@ -33,18 +36,28 @@ export default class Login extends Component {
         Alert.alert('Mensaje:', 'El correo electrónico no se encuentra registrado en el sistema', [{ text: 'Confirmar' },]);
       } else if (error.code == 'auth/wrong-password') {
         Alert.alert('Mensaje:', 'La contraseña no es válida o el usuario no tiene una contraseña', [{ text: 'Confirmar' },]);
+      } else if (error.code == 'auth/weak-password') {
+        Alert.alert('Mensaje:', 'La contraseña debe tener al menos 6 caracteres', [{ text: 'Confirmar' },]);
       }
 
     });
 
-    this._loginUser();
+    const { navigate } = this.props.navigation;
+    firebaseRef.auth().onAuthStateChanged(function (user) {
+      if (user) {
+        navigate('Home')
+        console.log('usuario logueado.')
+      } else {
+        console.log('usuario no logueado.')
+      }
+    });
 
   }
 
-  _loginUser() {  
-    const { navigate } = this.props.navigation;  
+  _loginUser() {
+    const { navigate } = this.props.navigation;
     firebaseRef.auth().onAuthStateChanged(function (user) {
-      if (user) {        
+      if (user) {
         navigate('Home')
         console.log('usuario logueado.')
       } else {
@@ -56,7 +69,7 @@ export default class Login extends Component {
 
 
   render() {
-    const { navigate } = this.props.navigation;  
+    const { navigate } = this.props.navigation;
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <StatusBar barStyle='light-content'></StatusBar>
